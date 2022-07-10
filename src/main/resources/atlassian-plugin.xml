@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="plugin-icon">images/Internet_link_16.png</param>
+        <param name="plugin-logo">images/Internet_link_48.png</param>
+        <param name="atlassian-data-center-compatible">true</param>
+        <param name="configure.url">/secure/admin/ur-configuration.jspa</param>
+        <param name="post.install.url">/secure/admin/ur-configuration.jspa</param>
+    </plugin-info>
+
+    <resource type="download" name="images/" location="images/"/>
+    <resource type="i18n" name="url-restrictions" location="url-restrictions"/>
+
+    <web-resource key="url-restrictions-configuration-resources" name="url-restrictions-configuration Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <dependency>com.atlassian.auiplugin:aui-select2</dependency>
+        <dependency>com.atlassian.auiplugin:aui-date-picker</dependency>
+        <dependency>com.atlassian.auiplugin:aui-flag</dependency>
+        <dependency>com.atlassian.auiplugin:aui-experimental-progress-indicator</dependency>
+
+        <transformation extension="soy">
+            <transformer key="soyTransformer">
+                <functions>com.atlassian.confluence.plugins.soy:soy-core-functions</functions>
+            </transformer>
+        </transformation>
+
+        <transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+
+        <resource type="download" name="ur-configuration.soy.js" location="/soy/ur-configuration.soy"/>
+
+        <resource type="download" name="safe-jquery.js" location="/js/core/safe-jquery.js"/>
+        <resource type="download" name="flags.js" location="/js/core/flags.js"/>
+        <resource type="download" name="domReady.js" location="/js/core/domReady.js"/>
+        <resource type="download" name="logging.js" location="/js/core/logging.js"/>
+        <resource type="download" name="aui-select.js" location="/js/core/aui-select.js"/>
+        <resource type="download" name="cookie-utils.js" location="/js/cookie-utils.js"/>
+        <resource type="download" name="rest.js" location="/js/rest.js"/>
+        <resource type="download" name="ur-configuration.js" location="/js/ur-configuration.js"/>
+
+        <context>url-restrictions-configuration-context</context>
+    </web-resource>
+
+    <servlet-filter name="url-restrictions-filter" key="url-restrictions-filter" location="before-decoration"
+                    class="proficient.developer.plugins.jira.urlrestrictions.filter.RestrictionsFilter" weight="600">
+        <description>Denies user non-SSO authentication if he tries to bypass login dialog.</description>
+        <url-pattern>*/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </servlet-filter>
+
+    <webwork1 key="url-configuraion-actions" name="URL ConfigurationActions" class="java.lang.Object" >
+        <actions>
+            <action name="proficient.developer.plugins.jira.urlrestrictions.webwork.ConfigWebwork" alias="ur-configuration"
+                    roles-required="admin">
+                <view name="input">/templates/ur-configuration-page.vm</view>
+            </action>
+        </actions>
+    </webwork1>
+
+    <rest key="ur-rest" path="/url-restriction-rule" version="1.0">
+        <description>Provides worklog report rest services</description>
+    </rest>
+
+    <ao key="url-restriction-entities" name="URL Restriction Entities">
+        <entity>proficient.developer.plugins.jira.urlrestrictions.ao.RuleEntity</entity>
+    </ao>
+</atlassian-plugin>
